@@ -11,3 +11,6 @@ Sim, é adequado separar as validações nas classes `CadastroDeClientes` e `Cad
 ## c. O método associar cliente a uma conta deveria estar em que classe? Banco, `CadastroDeContas` ou `CadastroDeClientes`?
 
 O método de associar um cliente a uma conta deve estar na classe `Banco`, pois é a classe que gerencia tanto os clientes quanto as contas, realizando a associação entre eles.
+
+
+## [Código completo:] ([https://chatgpt.com/](https://github.com/Kovokar/Disciplina-POO/tree/main/atvd5))
