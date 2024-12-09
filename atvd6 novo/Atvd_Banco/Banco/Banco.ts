@@ -10,6 +10,11 @@ export class Banco {
         this.clientes = []
     }
 
+    data = {
+        totDepositado: 0,
+        saldoMedioContas: 0
+    }
+
     inserirConta(conta: Conta): void{
         if (this.contaJaExiste(conta.id_conta, conta.numero)){
             console.error(`Já existe uma conta com o id ${conta.id_conta} ou um numero de conta ${conta.numero} cadastrado. Não é possível adicionar.`)
@@ -102,17 +107,42 @@ export class Banco {
         console.log(`Conta ${numeroConta} removida com sucesso do cliente ${cliente.nome}.`);
     }
 
-    sacar(cpf: string, numeroConta: string, valSacado: number): void{
+    sacar(cpf: string, numeroConta: string, valSacado: number): boolean{
         const clientesIndex = this.retornarContaCliente(cpf, numeroConta)
-        if (!clientesIndex) return
+        if (!clientesIndex) return false
         const [cliente, contaIndex] = clientesIndex
 
         let saldoCliente = cliente.contas[contaIndex].saldo
         if (saldoCliente < valSacado){
             console.log("Você não tem saldo o suficiente")
-            return
+            return false
         }
         cliente.contas[contaIndex].saldo -= valSacado
+        return true
+    }
+
+    depositar(cpf: string, numeroConta: string, valDeposito: number): boolean{
+        const clientesIndex = this.retornarContaCliente(cpf, numeroConta)
+        if (!clientesIndex) return false
+
+        const [cliente, contaIndex] = clientesIndex
+        cliente.contas[contaIndex].saldo += valDeposito
+        this.totDepositado(valDeposito)
+        return true
+    }
+
+    trasnferir(cpfRemetente: string, numeroContaRemetente: string, cpfDestino: string, numeroContaDestino: string, valTransferido: number): void{
+        const clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente)
+        const clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino)
+        
+        if (!clientesIndexRemetente || !clientesIndexDestino) return
+        const [clienteRemetente, contaIndexRemetente] = clientesIndexRemetente
+        const [clienteDestino, contaIndexDestino] = clientesIndexDestino
+
+
+        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido))
+            this.depositar(cpfDestino, numeroContaDestino, valTransferido)
+    
     }
 
     retornarContaCliente(cpf: string, numeroConta: string): [Cliente,number] | void{
@@ -128,6 +158,62 @@ export class Banco {
         }
 
         return [cliente, contaIndex]
+    }
+
+    transferirParaVarios(cpfRemetente: string, numeroContaRemetente: string, contasDestinatarios: { cpfDestino: string, numeroContaDestino: string }[], valTransferido: number): void {
+        // Encontra a conta do remetente
+        const clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
+        
+        if (!clientesIndexRemetente) {
+            console.log('Remetente não encontrado ou conta inválida.');
+            return;
+        }
+        
+        const [clienteRemetente, contaIndexRemetente] = clientesIndexRemetente;
+    
+        // Verifica se o saldo do remetente é suficiente para realizar todas as transferências
+        const saldoRemetente = clienteRemetente.contas[contaIndexRemetente].saldo;
+        if (saldoRemetente < valTransferido * contasDestinatarios.length) {
+            console.log('Saldo insuficiente para transferir para todas as contas.');
+            return;
+        }
+        
+        // Itera sobre as contas destinatárias e realiza a transferência
+        contasDestinatarios.forEach(({ cpfDestino, numeroContaDestino }) => {
+            const clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
+            
+            if (!clientesIndexDestino) {
+                console.log(`Conta destino não encontrada para CPF: ${cpfDestino} e número de conta: ${numeroContaDestino}`);
+                return;
+            }
+            
+            const [clienteDestino, contaIndexDestino] = clientesIndexDestino;
+    
+            // Realiza o saque da conta remetente e o depósito na conta destino
+            if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido)) {
+                this.depositar(cpfDestino, numeroContaDestino, valTransferido);
+                console.log(`Transferência de R$${valTransferido} realizada para a conta de ${cpfDestino}`);
+            } else {
+                console.log(`Falha ao realizar a transferência para a conta de ${cpfDestino}`);
+            }
+        });
+    }
+
+    totalDeContas():number{
+        this.contas = this.contas.filter((value, index, self) =>
+            index === self.findIndex((t) => t.id_conta === value.id_conta)
+          );
+        return this.contas.length;
+    }
+
+    totDepositado(valDeposito: number): void{
+        this.data.totDepositado += valDeposito
+    }
+
+    saldoMedioContas(): number{
+        this.contas.forEach(conta => {this.data.saldoMedioContas += conta.saldo})
+        this.data.saldoMedioContas = this.data.saldoMedioContas/this.totalDeContas()
+        return this.data.saldoMedioContas
     }
     
 }
