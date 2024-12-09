@@ -47,4 +47,4 @@ Lembre-se de que o foco é criar uma versão simplificada de um microblog, simil
    Antes de iniciar a implementação, clone os repositórios fornecidos utilizando o comando:
    
    ```bash
-   git clone <https://github.com/Kovokar/Disciplina-POO/tree/74cd0a87be97eb8c7490fd108de5d3fcf7fdbef6/atvd6%20novo/Atvd_Blog do repositório>
+   git clone https://github.com/Kovokar/Disciplina-POO/tree/74cd0a87be97eb8c7490fd108de5d3fcf7fdbef6/atvd6%20novo/Atvd_Blog
