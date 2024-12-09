@@ -3,6 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Banco = void 0;
 var Banco = /** @class */ (function () {
     function Banco() {
+        this.data = {
+            totDepositado: 0,
+            saldoMedioContas: 0
+        };
         this.contas = [];
         this.clientes = [];
     }
@@ -86,14 +90,34 @@ var Banco = /** @class */ (function () {
     Banco.prototype.sacar = function (cpf, numeroConta, valSacado) {
         var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
         if (!clientesIndex)
-            return;
+            return false;
         var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
         var saldoCliente = cliente.contas[contaIndex].saldo;
         if (saldoCliente < valSacado) {
             console.log("Você não tem saldo o suficiente");
-            return;
+            return false;
         }
         cliente.contas[contaIndex].saldo -= valSacado;
+        return true;
+    };
+    Banco.prototype.depositar = function (cpf, numeroConta, valDeposito) {
+        var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
+        if (!clientesIndex)
+            return false;
+        var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
+        cliente.contas[contaIndex].saldo += valDeposito;
+        this.totDepositado(valDeposito);
+        return true;
+    };
+    Banco.prototype.trasnferir = function (cpfRemetente, numeroContaRemetente, cpfDestino, numeroContaDestino, valTransferido) {
+        var clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
+        var clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
+        if (!clientesIndexRemetente || !clientesIndexDestino)
+            return;
+        var clienteRemetente = clientesIndexRemetente[0], contaIndexRemetente = clientesIndexRemetente[1];
+        var clienteDestino = clientesIndexDestino[0], contaIndexDestino = clientesIndexDestino[1];
+        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido))
+            this.depositar(cpfDestino, numeroContaDestino, valTransferido);
     };
     Banco.prototype.retornarContaCliente = function (cpf, numeroConta) {
         var cliente = this.consultaPorCpf(cpf);
@@ -107,6 +131,55 @@ var Banco = /** @class */ (function () {
             return;
         }
         return [cliente, contaIndex];
+    };
+    Banco.prototype.transferirParaVarios = function (cpfRemetente, numeroContaRemetente, contasDestinatarios, valTransferido) {
+        var _this = this;
+        // Encontra a conta do remetente
+        var clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
+        if (!clientesIndexRemetente) {
+            console.log('Remetente não encontrado ou conta inválida.');
+            return;
+        }
+        var clienteRemetente = clientesIndexRemetente[0], contaIndexRemetente = clientesIndexRemetente[1];
+        // Verifica se o saldo do remetente é suficiente para realizar todas as transferências
+        var saldoRemetente = clienteRemetente.contas[contaIndexRemetente].saldo;
+        if (saldoRemetente < valTransferido * contasDestinatarios.length) {
+            console.log('Saldo insuficiente para transferir para todas as contas.');
+            return;
+        }
+        // Itera sobre as contas destinatárias e realiza a transferência
+        contasDestinatarios.forEach(function (_a) {
+            var cpfDestino = _a.cpfDestino, numeroContaDestino = _a.numeroContaDestino;
+            var clientesIndexDestino = _this.retornarContaCliente(cpfDestino, numeroContaDestino);
+            if (!clientesIndexDestino) {
+                console.log("Conta destino n\u00E3o encontrada para CPF: ".concat(cpfDestino, " e n\u00FAmero de conta: ").concat(numeroContaDestino));
+                return;
+            }
+            var clienteDestino = clientesIndexDestino[0], contaIndexDestino = clientesIndexDestino[1];
+            // Realiza o saque da conta remetente e o depósito na conta destino
+            if (_this.sacar(cpfRemetente, numeroContaRemetente, valTransferido)) {
+                _this.depositar(cpfDestino, numeroContaDestino, valTransferido);
+                console.log("Transfer\u00EAncia de R$".concat(valTransferido, " realizada para a conta de ").concat(cpfDestino));
+            }
+            else {
+                console.log("Falha ao realizar a transfer\u00EAncia para a conta de ".concat(cpfDestino));
+            }
+        });
+    };
+    Banco.prototype.totalDeContas = function () {
+        this.contas = this.contas.filter(function (value, index, self) {
+            return index === self.findIndex(function (t) { return t.id_conta === value.id_conta; });
+        });
+        return this.contas.length;
+    };
+    Banco.prototype.totDepositado = function (valDeposito) {
+        this.data.totDepositado += valDeposito;
+    };
+    Banco.prototype.saldoMedioContas = function () {
+        var _this = this;
+        this.contas.forEach(function (conta) { _this.data.saldoMedioContas += conta.saldo; });
+        this.data.saldoMedioContas = this.data.saldoMedioContas / this.totalDeContas();
+        return this.data.saldoMedioContas;
     };
     return Banco;
 }());
