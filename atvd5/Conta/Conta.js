@@ -6,6 +6,7 @@ var Conta = /** @class */ (function () {
         this.numero = numero;
         this.saldo = saldo;
         this.id_conta = id_conta;
+        this.st_assosciada = false;
     }
     Conta.prototype.sacar = function (valor) {
         this.saldo = this.saldo - valor;
