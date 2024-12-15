@@ -23,7 +23,6 @@ export class Banco {
             this.contas.push(conta)
             console.log(`Conta ${conta.numero} cadastrado com sucesso`)
         }
-        this.contas.push(conta)
     }
 
     inserirCliente(cliente: Cliente): void {
@@ -107,7 +106,7 @@ export class Banco {
         console.log(`Conta ${numeroConta} removida com sucesso do cliente ${cliente.nome}.`);
     }
 
-    sacar(cpf: string, numeroConta: string, valSacado: number): boolean{
+    sacar(cpf: string, numeroConta: string, valSacado: number, ie_trans?: boolean): boolean{
         const clientesIndex = this.retornarContaCliente(cpf, numeroConta)
         if (!clientesIndex) return false
         const [cliente, contaIndex] = clientesIndex
@@ -118,16 +117,20 @@ export class Banco {
             return false
         }
         cliente.contas[contaIndex].saldo -= valSacado
+        if (!ie_trans)
+            console.log(`Valor de R$${valSacado} sacado com sucesso`)
         return true
     }
 
-    depositar(cpf: string, numeroConta: string, valDeposito: number): boolean{
+    depositar(cpf: string, numeroConta: string, valDeposito: number, ie_trans?: boolean): boolean{
         const clientesIndex = this.retornarContaCliente(cpf, numeroConta)
         if (!clientesIndex) return false
 
         const [cliente, contaIndex] = clientesIndex
         cliente.contas[contaIndex].saldo += valDeposito
         this.totDepositado(valDeposito)
+        if (!ie_trans)
+            console.log("Deposito realizado com sucesso!")
         return true
     }
 
@@ -136,13 +139,11 @@ export class Banco {
         const clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino)
         
         if (!clientesIndexRemetente || !clientesIndexDestino) return
-        const [clienteRemetente, contaIndexRemetente] = clientesIndexRemetente
-        const [clienteDestino, contaIndexDestino] = clientesIndexDestino
-
-
-        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido))
-            this.depositar(cpfDestino, numeroContaDestino, valTransferido)
-    
+        
+        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido, true)){
+            this.depositar(cpfDestino, numeroContaDestino, valTransferido, true)
+            console.log("Valor Transferido com Sucesso")
+        }
     }
 
     retornarContaCliente(cpf: string, numeroConta: string): [Cliente,number] | void{
