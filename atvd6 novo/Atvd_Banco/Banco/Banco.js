@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.Banco = void 0;
 var Banco = /** @class */ (function () {
     function Banco() {
@@ -18,7 +18,6 @@ var Banco = /** @class */ (function () {
             this.contas.push(conta);
             console.log("Conta ".concat(conta.numero, " cadastrado com sucesso"));
         }
-        this.contas.push(conta);
     };
     Banco.prototype.inserirCliente = function (cliente) {
         if (this.clienteJaExiste(cliente.id_cliente, cliente.cpf)) {
@@ -87,7 +86,7 @@ var Banco = /** @class */ (function () {
         cliente.contas.splice(contaIndex, 1);
         console.log("Conta ".concat(numeroConta, " removida com sucesso do cliente ").concat(cliente.nome, "."));
     };
-    Banco.prototype.sacar = function (cpf, numeroConta, valSacado) {
+    Banco.prototype.sacar = function (cpf, numeroConta, valSacado, ie_trans) {
         var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
         if (!clientesIndex)
             return false;
@@ -98,15 +97,19 @@ var Banco = /** @class */ (function () {
             return false;
         }
         cliente.contas[contaIndex].saldo -= valSacado;
+        if (!ie_trans)
+            console.log("Valor de R$".concat(valSacado, " sacado com sucesso"));
         return true;
     };
-    Banco.prototype.depositar = function (cpf, numeroConta, valDeposito) {
+    Banco.prototype.depositar = function (cpf, numeroConta, valDeposito, ie_trans) {
         var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
         if (!clientesIndex)
             return false;
         var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
         cliente.contas[contaIndex].saldo += valDeposito;
         this.totDepositado(valDeposito);
+        if (!ie_trans)
+            console.log("Deposito realizado com sucesso!");
         return true;
     };
     Banco.prototype.trasnferir = function (cpfRemetente, numeroContaRemetente, cpfDestino, numeroContaDestino, valTransferido) {
@@ -114,10 +117,10 @@ var Banco = /** @class */ (function () {
         var clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
         if (!clientesIndexRemetente || !clientesIndexDestino)
             return;
-        var clienteRemetente = clientesIndexRemetente[0], contaIndexRemetente = clientesIndexRemetente[1];
-        var clienteDestino = clientesIndexDestino[0], contaIndexDestino = clientesIndexDestino[1];
-        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido))
-            this.depositar(cpfDestino, numeroContaDestino, valTransferido);
+        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido, true)) {
+            this.depositar(cpfDestino, numeroContaDestino, valTransferido, true);
+            console.log("Valor Transferido com Sucesso");
+        }
     };
     Banco.prototype.retornarContaCliente = function (cpf, numeroConta) {
         var cliente = this.consultaPorCpf(cpf);
@@ -184,3 +187,4 @@ var Banco = /** @class */ (function () {
     return Banco;
 }());
 exports.Banco = Banco;
+
