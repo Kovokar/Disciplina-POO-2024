@@ -53,18 +53,6 @@ function exibirMenuDeOpcoes() {
                 console.log("Você escolheu a função 'Associar Conta'");
                 associarContaCliente();
                 break;
-            case "11":
-                console.log("Você escolheu a função 'Mudar Titularidade da Conta'");
-                mudarTitularidadeConta();
-                break;
-            case "12":
-                console.log("Você escolheu a função 'Excluir Cliente'");
-                excluirCliente();
-                break;
-            case "13":
-                console.log("Você escolheu a função 'Listar Contas Sem Cliente'");
-                listarContasSemCliente();
-                break;
             case "0":
                 console.log("Aplicação encerrada.");
                 break;
@@ -81,7 +69,6 @@ function inserirConta(ie_automatico) {
         banco.inserirConta(new Conta_1.Conta('222-2', 200, 2));
         banco.inserirConta(new Conta_1.Conta('333-3', 300, 3));
         banco.inserirConta(new Conta_1.Conta('444-4', 400, 4));
-        banco.inserirConta(new Conta_1.Conta('555-5', 500, 5)); //conta sem cliendte
         return;
     }
     var num_conta = input("Digite o número da conta: ");
@@ -119,12 +106,12 @@ function depositar(ie_automatico) {
 }
 function excluirConta(ie_automatico) {
     if (ie_automatico) {
-        banco.removerContaVinculada('3', '333-3');
+        banco.removerConta('4', '444-4');
         return;
     }
     var cpf_apagar = input("Digite o CPF do dono da conta que deseja apagar: ");
     var num_conta = input("Digite o número da conta que deseja apagar: ");
-    banco.removerContaVinculada(cpf_apagar, num_conta);
+    banco.removerConta(cpf_apagar, num_conta);
 }
 function transferir(ie_automatico) {
     if (ie_automatico) {
@@ -150,7 +137,6 @@ function inserirCliente(ie_automatico) {
         banco.inserirCliente(new Cliente_1.Cliente(id_cliente(), "joao", '2'));
         banco.inserirCliente(new Cliente_1.Cliente(id_cliente(), "tevis", '3'));
         banco.inserirCliente(new Cliente_1.Cliente(id_cliente(), "maria", '4'));
-        banco.inserirCliente(new Cliente_1.Cliente(id_cliente(), "cliente_apagado", '5'));
         return;
     }
     var nome_cli = input("Digite o nome do cliente: ");
@@ -178,37 +164,6 @@ function associarContaCliente(ie_automatico) {
     var cpf_cliente = input("Digite o CPF do cliente que deseja associar: ");
     banco.associarContaCliente(conta, cpf_cliente);
 }
-function mudarTitularidadeConta(ie_automatico) {
-    if (ie_automatico) {
-        console.log("Mudando titularidade da conta '111-1' para Maria...");
-        banco.mudarTitularidadeConta("111-1", "4");
-        console.log("\nConsultando a conta após a mudança de titularidade...");
-        console.log(banco.consultar("111-1"));
-        return;
-    }
-    var numeroConta = input("Digite o número da conta que deseja mudar de titular: ");
-    var novoCpfCliente = input("Digite o CPF do novo titular: ");
-    banco.mudarTitularidadeConta(numeroConta, novoCpfCliente);
-}
-function excluirCliente(ie_automatico) {
-    if (ie_automatico) {
-        console.log("Excluindo o cliente 'Cliete_apagado'...");
-        banco.excluirCliente("5");
-        return;
-    }
-    var cpf_cliente = input("Digite o cpf do cliente que deseja excluir: ");
-    banco.excluirCliente(cpf_cliente);
-}
-function listarContasSemCliente(ie_automatico) {
-    var contasSemCliente = banco.listarContasSemCliente();
-    console.log("\nContas sem cliente associado:");
-    contasSemCliente.forEach(function (conta) {
-        console.log("N\u00FAmero da Conta: ".concat(conta.numero, ", Saldo: R$").concat(conta.saldo));
-    });
-    var numeroConta = input("Digite o número da conta que deseja associar a um cliente: ");
-    var cpfCliente = input("Digite o CPF do cliente: ");
-    banco.associarContaSemCliente(numeroConta, cpfCliente);
-}
 function testeAutomatico() {
     console.log();
     inserirConta(true);
@@ -235,9 +190,6 @@ function testeAutomatico() {
     transferir(true);
     console.log();
     totalizacoes();
-    mudarTitularidadeConta(true);
-    excluirCliente(true);
-    listarContasSemCliente();
 }
 function perguntar() {
     var resposta;

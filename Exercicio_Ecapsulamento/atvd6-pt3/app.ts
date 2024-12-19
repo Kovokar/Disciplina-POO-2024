@@ -12,6 +12,10 @@ perguntar()
 
 
 
+
+
+
+
 function exibirMenuDeOpcoes() {
     let opcao: string
 
@@ -60,18 +64,6 @@ function exibirMenuDeOpcoes() {
                 console.log("Você escolheu a função 'Associar Conta'")
                 associarContaCliente()
                 break
-            case "11":
-                console.log("Você escolheu a função 'Mudar Titularidade da Conta'")
-                mudarTitularidadeConta()
-                break
-            case "12":
-                console.log("Você escolheu a função 'Excluir Cliente'")
-                excluirCliente()
-                break
-            case "13":
-                console.log("Você escolheu a função 'Listar Contas Sem Cliente'")
-                listarContasSemCliente()
-                break
             case "0":
                 console.log("Aplicação encerrada.")
                 break
@@ -92,7 +84,6 @@ function inserirConta(ie_automatico?: boolean): void{
         banco.inserirConta(new Conta('222-2', 200, 2))
         banco.inserirConta(new Conta('333-3', 300, 3))
         banco.inserirConta(new Conta('444-4', 400, 4))
-        banco.inserirConta(new Conta('555-5', 500, 5)) //conta sem cliendte
         return 
     }
 
@@ -144,13 +135,13 @@ function depositar(ie_automatico?: boolean): void{
 
 function excluirConta(ie_automatico?: boolean): void{
     if (ie_automatico){
-        banco.removerContaVinculada('3','333-3')
+        banco.removerConta('4','444-4')
         return
     }
 
     const cpf_apagar = input("Digite o CPF do dono da conta que deseja apagar: ")
     const num_conta = input("Digite o número da conta que deseja apagar: ") 
-    banco.removerContaVinculada(cpf_apagar, num_conta)
+    banco.removerConta(cpf_apagar, num_conta)
 }
 
 function transferir(ie_automatico?: boolean): void{
@@ -183,8 +174,6 @@ function inserirCliente(ie_automatico?: boolean): void{
         banco.inserirCliente(new Cliente(id_cliente(), "joao", '2'))
         banco.inserirCliente(new Cliente(id_cliente(), "tevis", '3'))
         banco.inserirCliente(new Cliente(id_cliente(), "maria", '4'))
-        banco.inserirCliente(new Cliente(id_cliente(), "cliente_apagado", '5'))
-
         return
     }
 
@@ -220,41 +209,6 @@ function associarContaCliente(ie_automatico?: boolean): void{
 
 }
 
-function mudarTitularidadeConta(ie_automatico?: boolean): void{
-    if (ie_automatico){
-        console.log("Mudando titularidade da conta '111-1' para Maria...")
-        banco.mudarTitularidadeConta("111-1", "4")
-        console.log("\nConsultando a conta após a mudança de titularidade...")
-        console.log(banco.consultar("111-1"))
-        return
-    }
-    const numeroConta = input("Digite o número da conta que deseja mudar de titular: ")
-    const novoCpfCliente = input("Digite o CPF do novo titular: ")
-    banco.mudarTitularidadeConta(numeroConta, novoCpfCliente)
-}
-
-function excluirCliente(ie_automatico?: boolean): void{
-    if (ie_automatico){
-        console.log("Excluindo o cliente 'Cliete_apagado'...")
-        banco.excluirCliente("5") 
-        return
-    }
-
-    const cpf_cliente = input("Digite o cpf do cliente que deseja excluir: ")
-    banco.excluirCliente(cpf_cliente)
-}
-
-function listarContasSemCliente(ie_automatico?: boolean): void{
-    const contasSemCliente = banco.listarContasSemCliente()
-    console.log("\nContas sem cliente associado:")
-    contasSemCliente.forEach(conta => {
-        console.log(`Número da Conta: ${conta.numero}, Saldo: R$${conta.saldo}`)
-    })
-    const numeroConta = input("Digite o número da conta que deseja associar a um cliente: ")
-    const cpfCliente = input("Digite o CPF do cliente: ")
-    banco.associarContaSemCliente(numeroConta, cpfCliente)
-}
-
 function testeAutomatico(){
 
     console.log()
@@ -282,9 +236,6 @@ function testeAutomatico(){
     transferir(true)
     console.log()
     totalizacoes()
-    mudarTitularidadeConta(true)
-    excluirCliente(true)
-    listarContasSemCliente()
 }
 
 function perguntar() {
