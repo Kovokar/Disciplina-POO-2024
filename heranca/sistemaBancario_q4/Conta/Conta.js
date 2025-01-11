@@ -8,20 +8,44 @@ var Conta = /** @class */ (function () {
         this.id_conta = id_conta;
         this.st_assosciada = false;
     }
+    // Métodos Getters
+    Conta.prototype.getNumero = function () {
+        return this.numero;
+    };
+    Conta.prototype.getSaldo = function () {
+        return this.saldo;
+    };
+    Conta.prototype.getIdConta = function () {
+        return this.id_conta;
+    };
+    Conta.prototype.getCliente = function () {
+        return this.cliente;
+    };
+    Conta.prototype.isAssociada = function () {
+        return this.st_assosciada;
+    };
+    // Métodos de ação
     Conta.prototype.sacar = function (valor) {
-        this.saldo = this.saldo - valor;
+        if (valor <= this.saldo) {
+            this.saldo -= valor;
+        }
+        else {
+            console.log("Saldo insuficiente");
+        }
     };
     Conta.prototype.depositar = function (valor) {
-        this.saldo = this.saldo + valor;
+        this.saldo += valor;
     };
     Conta.prototype.consultarSaldo = function () {
         return this.saldo;
     };
     Conta.prototype.transferir = function (contaDestino, valor) {
-        // this.saldo = this.saldo - valor
-        // contaDestino.saldo = contaDestino.saldo + valor
         this.sacar(valor);
         contaDestino.depositar(valor);
+    };
+    // Setter para alterar o status de associação
+    Conta.prototype.setAssociada = function (status) {
+        this.st_assosciada = status;
     };
     return Conta;
 }());

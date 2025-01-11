@@ -128,7 +128,7 @@ function excluirConta(ie_automatico) {
 }
 function transferir(ie_automatico) {
     if (ie_automatico) {
-        banco.trasnferir("1", "111-1", "2", "222-2", 100);
+        banco.transferir("1", "111-1", "2", "222-2", 100);
         return;
     }
     var cpf_remetente = input("Digite o CPF vinculado a conta que irá mandar o dinheiro: ");
@@ -136,7 +136,7 @@ function transferir(ie_automatico) {
     var cpf_destino = input("Digite o CPF vinculado a conta que irá receber o dinheiro: ");
     var num_conta_destino = input("Digite o número da conta que irá receber o dinheiro: ");
     var val_transferido = isNumber(Number(input("Digite o valor que deseja transferir: ")));
-    banco.trasnferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido);
+    banco.transferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido);
 }
 function totalizacoes() {
     console.log("H\u00E1 ".concat(banco.totalDeContas(), " contas no banco"));
@@ -203,7 +203,7 @@ function listarContasSemCliente(ie_automatico) {
     var contasSemCliente = banco.listarContasSemCliente();
     console.log("\nContas sem cliente associado:");
     contasSemCliente.forEach(function (conta) {
-        console.log("N\u00FAmero da Conta: ".concat(conta.numero, ", Saldo: R$").concat(conta.saldo));
+        console.log("N\u00FAmero da Conta: ".concat(conta.getNumero(), ", Saldo: R$").concat(conta.getSaldo()));
     });
     var numeroConta = input("Digite o número da conta que deseja associar a um cliente: ");
     var cpfCliente = input("Digite o CPF do cliente: ");

@@ -11,39 +11,42 @@ var Banco = /** @class */ (function () {
         this.clientes = [];
     }
     Banco.prototype.inserirConta = function (conta) {
-        if (this.contaJaExiste(conta.id_conta, conta.numero)) {
-            console.error("J\u00E1 existe uma conta com o id ".concat(conta.id_conta, " ou um numero de conta ").concat(conta.numero, " cadastrado. N\u00E3o \u00E9 poss\u00EDvel adicionar."));
+        if (this.contaJaExiste(conta.getIdConta(), conta.getNumero())) {
+            console.error("J\u00E1 existe uma conta com o id ".concat(conta.getIdConta(), " ou um numero de conta ").concat(conta.getNumero(), " cadastrado. N\u00E3o \u00E9 poss\u00EDvel adicionar."));
         }
         else {
             this.contas.push(conta);
-            console.log("Conta ".concat(conta.numero, " cadastrado com sucesso"));
+            console.log("Conta ".concat(conta.getNumero(), " cadastrada com sucesso"));
         }
     };
     Banco.prototype.inserirCliente = function (cliente) {
-        if (this.clienteJaExiste(cliente.id_cliente, cliente.cpf)) {
-            console.error("J\u00E1 existe uma conta com o id ".concat(cliente.id_cliente, " ou um cpf ").concat(cliente.cpf, " cadastrado. N\u00E3o \u00E9 poss\u00EDvel adicionar."));
+        if (this.clienteJaExiste(cliente.getIdCliente(), cliente.getCpf())) {
+            console.error("J\u00E1 existe uma conta com o id ".concat(cliente.getIdCliente(), " ou um cpf ").concat(cliente.getCpf(), " cadastrado. N\u00E3o \u00E9 poss\u00EDvel adicionar."));
         }
         else {
             this.clientes.push(cliente);
-            console.log("Cliente ".concat(cliente.nome, " cadastrado com sucesso"));
+            console.log("Cliente ".concat(cliente.getNome(), " cadastrado com sucesso"));
         }
     };
     Banco.prototype.clienteJaExiste = function (id, cpf) {
-        return this.clientes.some(function (cli) { return cli.cpf === cpf || cli.id_cliente === id; });
+        return this.clientes.some(function (cli) { return cli.getCpf() === cpf || cli.getIdCliente() === id; });
     };
     Banco.prototype.contaJaExiste = function (id, numeroConta) {
-        return this.contas.some(function (conta) { return conta.numero === numeroConta || conta.id_conta === id; });
+        return this.contas.some(function (conta) { return conta.getNumero() === numeroConta || conta.getIdConta() === id; });
     };
-    Banco.prototype.consultar = function (numero) {
-        var contaProcurada = this.contas.filter(function (conta) { return conta.numero === numero; });
+    Banco.prototype.consultarPorIndice = function (numero) {
+        var contaProcurada = this.contas.filter(function (conta) { return conta.getNumero() === numero; });
         if (!contaProcurada) {
             console.error("Conta com n\u00FAmero ".concat(numero, " n\u00E3o encontrada."));
             return null;
         }
         return contaProcurada[0];
     };
+    Banco.prototype.consultar = function (numero) {
+        return this.consultarPorIndice(numero);
+    };
     Banco.prototype.consultaPorCpf = function (cpf) {
-        var result = this.clientes.filter(function (key) { return key.cpf === cpf; });
+        var result = this.clientes.filter(function (key) { return key.getCpf() === cpf; });
         if (!result) {
             console.error("Cliente com CPF ".concat(cpf, " n\u00E3o encontrado."));
             return null;
@@ -55,26 +58,26 @@ var Banco = /** @class */ (function () {
         var conta = this.consultar(numeroConta);
         if (!cliente || !conta)
             return;
-        if (conta.st_assosciada) {
-            console.error("A conta ".concat(conta.numero, " j\u00E1 est\u00E1 associada a outro cliente."));
+        if (conta.isAssociada()) {
+            console.error("A conta ".concat(conta.getNumero(), " j\u00E1 est\u00E1 associada a outro cliente."));
             return;
         }
-        cliente.contas.push(conta);
-        this.mudarStatusConta(conta);
-        console.log("Conta ".concat(numeroConta, " associada com sucesso ao cliente ").concat(cliente.nome, "."));
+        cliente.adicionarConta(conta);
+        conta.setAssociada(true);
+        console.log("Conta ".concat(numeroConta, " associada com sucesso ao cliente ").concat(cliente.getNome(), "."));
     };
-    Banco.prototype.mudarStatusConta = function (conta) {
-        conta.st_assosciada = true;
-    };
+    // private mudarStatusConta(conta: Conta): void {
+    //     conta.st_assosciada = true
+    // }
     Banco.prototype.listarContasDeUmCliente = function (cpfCliente) {
         var cliente = this.consultaPorCpf(cpfCliente);
-        return cliente === null || cliente === void 0 ? void 0 : cliente.contas;
+        return cliente === null || cliente === void 0 ? void 0 : cliente.getContas();
     };
     Banco.prototype.totalizadorSaldoCliente = function (cpf) {
         var contasDeCliente = this.listarContasDeUmCliente(cpf);
         var totalizador = 0;
         contasDeCliente === null || contasDeCliente === void 0 ? void 0 : contasDeCliente.forEach(function (element) {
-            totalizador += element.saldo;
+            totalizador += element.getSaldo();
         });
         return totalizador;
     };
@@ -83,20 +86,20 @@ var Banco = /** @class */ (function () {
         if (!clientesIndex)
             return;
         var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
-        cliente.contas.splice(contaIndex, 1);
-        console.log("Conta ".concat(numeroConta, " removida com sucesso do cliente ").concat(cliente.nome, "."));
+        cliente.removerConta(cliente.getContas()[contaIndex]);
+        console.log("Conta ".concat(numeroConta, " removida com sucesso do cliente ").concat(cliente.getNome(), "."));
     };
     Banco.prototype.sacar = function (cpf, numeroConta, valSacado, ie_trans) {
         var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
         if (!clientesIndex)
             return false;
         var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
-        var saldoCliente = cliente.contas[contaIndex].saldo;
+        var saldoCliente = cliente.getContas()[contaIndex].getSaldo();
         if (saldoCliente < valSacado) {
             console.log("Você não tem saldo o suficiente");
             return false;
         }
-        cliente.contas[contaIndex].saldo -= valSacado;
+        cliente.getContas()[contaIndex].sacar(valSacado);
         if (!ie_trans)
             console.log("Valor de R$".concat(valSacado, " sacado com sucesso"));
         return true;
@@ -106,13 +109,13 @@ var Banco = /** @class */ (function () {
         if (!clientesIndex)
             return false;
         var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
-        cliente.contas[contaIndex].saldo += valDeposito;
+        cliente.getContas()[contaIndex].depositar(valDeposito);
         this.totDepositado(valDeposito);
         if (!ie_trans)
             console.log("Deposito realizado com sucesso!");
         return true;
     };
-    Banco.prototype.trasnferir = function (cpfRemetente, numeroContaRemetente, cpfDestino, numeroContaDestino, valTransferido) {
+    Banco.prototype.transferir = function (cpfRemetente, numeroContaRemetente, cpfDestino, numeroContaDestino, valTransferido) {
         var clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
         var clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
         if (!clientesIndexRemetente || !clientesIndexDestino)
@@ -128,7 +131,7 @@ var Banco = /** @class */ (function () {
             console.log('Cliente não encontrado!');
             return;
         }
-        var contaIndex = cliente.contas.findIndex(function (conta) { return conta.numero === numeroConta; });
+        var contaIndex = cliente.getContas().findIndex(function (conta) { return conta.getNumero() === numeroConta; });
         if (contaIndex === -1) {
             console.log('Conta não encontrada!');
             return;
@@ -137,20 +140,17 @@ var Banco = /** @class */ (function () {
     };
     Banco.prototype.transferirParaVarios = function (cpfRemetente, numeroContaRemetente, contasDestinatarios, valTransferido) {
         var _this = this;
-        // Encontra a conta do remetente
         var clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
         if (!clientesIndexRemetente) {
             console.log('Remetente não encontrado ou conta inválida.');
             return;
         }
         var clienteRemetente = clientesIndexRemetente[0], contaIndexRemetente = clientesIndexRemetente[1];
-        // Verifica se o saldo do remetente é suficiente para realizar todas as transferências
-        var saldoRemetente = clienteRemetente.contas[contaIndexRemetente].saldo;
+        var saldoRemetente = clienteRemetente.getContas()[contaIndexRemetente].getSaldo();
         if (saldoRemetente < valTransferido * contasDestinatarios.length) {
             console.log('Saldo insuficiente para transferir para todas as contas.');
             return;
         }
-        // Itera sobre as contas destinatárias e realiza a transferência
         contasDestinatarios.forEach(function (_a) {
             var cpfDestino = _a.cpfDestino, numeroContaDestino = _a.numeroContaDestino;
             var clientesIndexDestino = _this.retornarContaCliente(cpfDestino, numeroContaDestino);
@@ -159,7 +159,6 @@ var Banco = /** @class */ (function () {
                 return;
             }
             var clienteDestino = clientesIndexDestino[0], contaIndexDestino = clientesIndexDestino[1];
-            // Realiza o saque da conta remetente e o depósito na conta destino
             if (_this.sacar(cpfRemetente, numeroContaRemetente, valTransferido)) {
                 _this.depositar(cpfDestino, numeroContaDestino, valTransferido);
                 console.log("Transfer\u00EAncia de R$".concat(valTransferido, " realizada para a conta de ").concat(cpfDestino));
@@ -170,17 +169,17 @@ var Banco = /** @class */ (function () {
         });
     };
     Banco.prototype.excluirCliente = function (cpf) {
-        var clienteIndex = this.clientes.findIndex(function (cliente) { return cliente.cpf === cpf; });
+        var clienteIndex = this.clientes.findIndex(function (cliente) { return cliente.getCpf() === cpf; });
         if (clienteIndex === -1) {
             console.log("Cliente n\u00E3o encontrado.");
             return;
         }
         var cliente = this.clientes[clienteIndex];
-        cliente.contas.forEach(function (conta) {
-            conta.st_assosciada = false;
+        cliente.getContas().forEach(function (conta) {
+            conta.setAssociada(false);
         });
         this.clientes.splice(clienteIndex, 1);
-        console.log("Cliente ".concat(cliente.nome, " exclu\u00EDdo com sucesso."));
+        console.log("Cliente ".concat(cliente.getNome(), " exclu\u00EDdo com sucesso."));
     };
     Banco.prototype.excluirConta = function (numeroConta) {
         var conta = this.consultar(numeroConta);
@@ -188,14 +187,14 @@ var Banco = /** @class */ (function () {
             console.log("Conta ".concat(numeroConta, " n\u00E3o encontrada."));
             return;
         }
-        var cliente = this.clientes.find(function (cliente) { return cliente.contas.includes(conta); });
+        var cliente = this.clientes.find(function (cliente) { return cliente.getContas().includes(conta); });
         if (cliente) {
-            cliente.contas = cliente.contas.filter(function (conta) { return conta.numero !== numeroConta; });
-            if (cliente.contas.length === 0) {
-                this.excluirCliente(cliente.cpf);
+            cliente.getContas().splice(cliente.getContas().indexOf(conta), 1);
+            if (cliente.getContas().length === 0) {
+                this.excluirCliente(cliente.getCpf());
             }
         }
-        var index = this.contas.findIndex(function (c) { return c.numero === numeroConta; });
+        var index = this.contas.findIndex(function (c) { return c.getNumero() === numeroConta; });
         this.contas.splice(index, 1);
         console.log("Conta ".concat(numeroConta, " exclu\u00EDda com sucesso."));
     };
@@ -206,16 +205,16 @@ var Banco = /** @class */ (function () {
             console.log("Conta ou cliente não encontrado.");
             return;
         }
-        if (conta.st_assosciada) {
-            var clienteAtual = this.clientes.find(function (cliente) { return cliente.contas.includes(conta); });
-            clienteAtual === null || clienteAtual === void 0 ? void 0 : clienteAtual.contas.splice(clienteAtual.contas.indexOf(conta), 1);
+        if (conta.isAssociada()) {
+            var clienteAtual = this.clientes.find(function (cliente) { return cliente.getContas().includes(conta); });
+            clienteAtual === null || clienteAtual === void 0 ? void 0 : clienteAtual.getContas().splice(clienteAtual.getContas().indexOf(conta), 1);
         }
-        novoCliente.contas.push(conta);
-        conta.st_assosciada = true;
-        console.log("Titularidade da conta ".concat(numeroConta, " alterada para o cliente ").concat(novoCliente.nome, "."));
+        novoCliente.adicionarConta(conta);
+        conta.setAssociada(true);
+        console.log("Titularidade da conta ".concat(numeroConta, " alterada para o cliente ").concat(novoCliente.getNome(), "."));
     };
     Banco.prototype.listarContasSemCliente = function () {
-        return this.contas.filter(function (conta) { return !conta.st_assosciada; });
+        return this.contas.filter(function (conta) { return !conta.isAssociada(); });
     };
     Banco.prototype.associarContaSemCliente = function (numeroConta, cpfCliente) {
         var conta = this.consultar(numeroConta);
@@ -224,17 +223,17 @@ var Banco = /** @class */ (function () {
             console.log("Conta ou cliente não encontrado.");
             return;
         }
-        if (conta.st_assosciada) {
+        if (conta.isAssociada()) {
             console.log("Essa conta já está associada a um cliente.");
             return;
         }
-        cliente.contas.push(conta);
-        conta.st_assosciada = true;
-        console.log("Conta ".concat(numeroConta, " associada com sucesso ao cliente ").concat(cliente.nome, "."));
+        cliente.adicionarConta(conta);
+        conta.setAssociada(true);
+        console.log("Conta ".concat(numeroConta, " associada com sucesso ao cliente ").concat(cliente.getNome(), "."));
     };
     Banco.prototype.totalDeContas = function () {
         this.contas = this.contas.filter(function (value, index, self) {
-            return index === self.findIndex(function (t) { return t.id_conta === value.id_conta; });
+            return index === self.findIndex(function (t) { return t.getIdConta() === value.getIdConta(); });
         });
         return this.contas.length;
     };
@@ -243,7 +242,7 @@ var Banco = /** @class */ (function () {
     };
     Banco.prototype.saldoMedioContas = function () {
         var _this = this;
-        this.contas.forEach(function (conta) { _this.data.saldoMedioContas += conta.saldo; });
+        this.contas.forEach(function (conta) { _this.data.saldoMedioContas += conta.getSaldo(); });
         this.data.saldoMedioContas = this.data.saldoMedioContas / this.totalDeContas();
         return this.data.saldoMedioContas;
     };
