@@ -10,12 +10,6 @@ let banco: Banco = new Banco()
 perguntar()
 
 
-
-
-
-
-
-
 function exibirMenuDeOpcoes() {
     let opcao: string
 

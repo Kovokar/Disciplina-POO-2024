@@ -18,7 +18,7 @@ export class Conta {
     sacar(valor: number): void {
         this.saldo = this.saldo - valor
     }
- ffwefsf
+
     depositar(valor: number): void {
         this.saldo = this.saldo + valor
     }

@@ -21,7 +21,6 @@ function Q3(): void{
 
 
 
-
 Q1()
 Q2()
 Q3()
