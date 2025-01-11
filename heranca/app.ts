@@ -1,6 +1,7 @@
 // import {heranca_veiculo} from './heranca_veiculo'
-import {Calculadora} from './calculadora_2/calculadora'
 import {Carro, Veiculo, CarroEletrico} from './veiculo_1/heranca_veiculo'
+import {Calculadora} from './calculadora_2/calculadora'
+import {CalculadoraCientifica} from './calculadora_cientifica_3/CalculadoraCientifica'
 
 
 function Q1(): void{
@@ -13,7 +14,14 @@ function Q2(): void{
     console.log(calc.sumOperandos())
 }
 
+function Q3(): void{
+    const calcCient = new CalculadoraCientifica(3,2)
+    console.log(calcCient.exponencia())
+}
+
+
 
 
 Q1()
 Q2()
+Q3()
