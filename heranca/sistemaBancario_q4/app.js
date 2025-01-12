@@ -3,6 +3,7 @@ exports.__esModule = true;
 var Cliente_1 = require("./Cliente/Cliente");
 var Banco_1 = require("./Banco/Banco");
 var Conta_1 = require("./Conta/Conta");
+var Poupanca_1 = require("./ContaPoupan\u00E7a/Poupanca");
 var promptSync = require("prompt-sync");
 var input = promptSync();
 var banco = new Banco_1.Banco();
@@ -65,6 +66,10 @@ function exibirMenuDeOpcoes() {
                 console.log("Você escolheu a função 'Listar Contas Sem Cliente'");
                 listarContasSemCliente();
                 break;
+            case "14":
+                console.log("Você escolheu a função 'Render Juros'");
+                renderJuros();
+                break;
             case "0":
                 console.log("Aplicação encerrada.");
                 break;
@@ -80,8 +85,8 @@ function inserirConta(ie_automatico) {
         banco.inserirConta(new Conta_1.Conta('111-1', 1000, 1));
         banco.inserirConta(new Conta_1.Conta('222-2', 200, 2));
         banco.inserirConta(new Conta_1.Conta('333-3', 300, 3));
-        banco.inserirConta(new Conta_1.Conta('444-4', 400, 4));
-        banco.inserirConta(new Conta_1.Conta('555-5', 500, 5)); //conta sem cliendte
+        banco.inserirConta(new Poupanca_1.Poupanca('111-1', 1000, 1, 5));
+        banco.inserirConta(new Poupanca_1.Poupanca('222-2', 200, 2, 7)); //conta sem cliendte
         return;
     }
     var num_conta = input("Digite o número da conta: ");
@@ -209,6 +214,15 @@ function listarContasSemCliente(ie_automatico) {
     var cpfCliente = input("Digite o CPF do cliente: ");
     banco.associarContaSemCliente(numeroConta, cpfCliente);
 }
+function renderJuros(ie_automatico) {
+    if (ie_automatico) {
+        banco.renderJuros('111-1');
+        banco.renderJuros('333-3');
+        return;
+    }
+    var num_conta = input("Digite o número da conta que deseja depositar: ");
+    banco.renderJuros(num_conta);
+}
 function testeAutomatico() {
     console.log();
     inserirConta(true);
@@ -229,6 +243,8 @@ function testeAutomatico() {
     sacar(true);
     console.log();
     depositar(true);
+    console.log();
+    renderJuros(true);
     console.log();
     excluirConta(true);
     console.log();
@@ -266,10 +282,13 @@ function exibirMenu() {
     console.log('5 - Excluir');
     console.log('6 - Transferir');
     console.log('7 - Totalizações');
-    console.log('Clientes:');
     console.log('8 - Inserir Cliente');
     console.log('9 - Consultar Cliente');
     console.log('10 - Associar Conta');
+    console.log('11 - Mudar Titularidade');
+    console.log('12 - Excluir Cliente');
+    console.log('13 - Listar Contas Sem Cliente');
+    console.log('14 - Render Juros');
     console.log('0 - Sair');
 }
 function isNumber(val) {

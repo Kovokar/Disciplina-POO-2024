@@ -1,5 +1,6 @@
 import { Conta } from '../Conta/Conta'
 import { Cliente } from '../Cliente/Cliente'
+import { Poupanca } from '../ContaPoupança/Poupanca'
 
 export class Banco {
     private contas: Conta[] // Tornando o array de contas privado
@@ -17,7 +18,7 @@ export class Banco {
 
     inserirConta(conta: Conta): void {
         if (this.contaJaExiste(conta.getIdConta(), conta.getNumero())) {
-            console.error(`Já existe uma conta com o id ${conta.getIdConta()} ou um numero de conta ${conta.getNumero()} cadastrado. Não é possível adicionar.`);
+            console.error(`Já existe uma conta com o id ${conta.getIdConta()} ou um numero de conta ${conta.getNumero()} cadastrado. Não é possível adicionar.`)
         } else {
             this.contas.push(conta);
             console.log(`Conta ${conta.getNumero()} cadastrada com sucesso`);
@@ -293,5 +294,17 @@ export class Banco {
         this.contas.forEach(conta => { this.data.saldoMedioContas += conta.getSaldo() });
         this.data.saldoMedioContas = this.data.saldoMedioContas / this.totalDeContas();
         return this.data.saldoMedioContas;
+    }
+
+    renderJuros(num_conta: string): void {
+        try {
+            let conta = this.consultar(num_conta)
+            if (!(conta instanceof Poupanca)) {
+                throw new Error("Conta não é do tipo Poupanca")
+            }
+            conta.renderJuros()
+        } catch (error) {
+            console.log(error.message)
+        }
     }
 }

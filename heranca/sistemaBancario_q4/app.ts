@@ -1,6 +1,8 @@
 import { Cliente } from './Cliente/Cliente'
 import { Banco } from './Banco/Banco'
 import { Conta } from './Conta/Conta'
+import { Poupanca} from './ContaPoupança/Poupanca'
+
 
 import * as promptSync from 'prompt-sync'
 
@@ -69,6 +71,10 @@ function exibirMenuDeOpcoes() {
                 console.log("Você escolheu a função 'Listar Contas Sem Cliente'")
                 listarContasSemCliente()
                 break
+            case "14":
+                console.log("Você escolheu a função 'Render Juros'")
+                renderJuros()
+                break
             case "0":
                 console.log("Aplicação encerrada.")
                 break
@@ -88,8 +94,8 @@ function inserirConta(ie_automatico?: boolean): void{
         banco.inserirConta(new Conta('111-1', 1000, 1))
         banco.inserirConta(new Conta('222-2', 200, 2))
         banco.inserirConta(new Conta('333-3', 300, 3))
-        banco.inserirConta(new Conta('444-4', 400, 4))
-        banco.inserirConta(new Conta('555-5', 500, 5)) //conta sem cliendte
+        banco.inserirConta(new Poupanca('111-1', 1000, 1, 5))
+        banco.inserirConta(new Poupanca('222-2', 200, 2, 7)) //conta sem cliendte
         return 
     }
 
@@ -252,6 +258,17 @@ function listarContasSemCliente(ie_automatico?: boolean): void{
     banco.associarContaSemCliente(numeroConta, cpfCliente)
 }
 
+function renderJuros(ie_automatico?: boolean): void{
+    if (ie_automatico){
+        banco.renderJuros('111-1')
+        banco.renderJuros('333-3')
+        return
+    }
+    const num_conta = input("Digite o número da conta que deseja depositar: ")
+    banco.renderJuros(num_conta)
+
+}
+
 function testeAutomatico(){
 
     console.log()
@@ -273,6 +290,8 @@ function testeAutomatico(){
     sacar(true)
     console.log()
     depositar(true)
+    console.log()
+    renderJuros(true)
     console.log()
     excluirConta(true)
     console.log()
@@ -312,10 +331,13 @@ function exibirMenu(): void {
     console.log('5 - Excluir')
     console.log('6 - Transferir')
     console.log('7 - Totalizações')
-    console.log('Clientes:')
     console.log('8 - Inserir Cliente')
     console.log('9 - Consultar Cliente')
     console.log('10 - Associar Conta')
+    console.log('11 - Mudar Titularidade')
+    console.log('12 - Excluir Cliente')
+    console.log('13 - Listar Contas Sem Cliente')
+    console.log('14 - Render Juros')
     console.log('0 - Sair')
 }
 

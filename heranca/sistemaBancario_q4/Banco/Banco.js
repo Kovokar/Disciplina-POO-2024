@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 exports.Banco = void 0;
+var Poupanca_1 = require("../ContaPoupan\u00E7a/Poupanca");
 var Banco = /** @class */ (function () {
     function Banco() {
         this.data = {
@@ -245,6 +246,18 @@ var Banco = /** @class */ (function () {
         this.contas.forEach(function (conta) { _this.data.saldoMedioContas += conta.getSaldo(); });
         this.data.saldoMedioContas = this.data.saldoMedioContas / this.totalDeContas();
         return this.data.saldoMedioContas;
+    };
+    Banco.prototype.renderJuros = function (num_conta) {
+        try {
+            var conta = this.consultar(num_conta);
+            if (!(conta instanceof Poupanca_1.Poupanca)) {
+                throw new Error("Conta não é do tipo Poupanca");
+            }
+            conta.renderJuros();
+        }
+        catch (error) {
+            console.log(error.message);
+        }
     };
     return Banco;
 }());
