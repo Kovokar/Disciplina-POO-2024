@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+exports.perguntar = void 0;
 var Cliente_1 = require("./Cliente/Cliente");
 var Banco_1 = require("./Banco/Banco");
 var Conta_1 = require("./Conta/Conta");
@@ -272,6 +273,7 @@ function perguntar() {
         }
     }
 }
+exports.perguntar = perguntar;
 function exibirMenu() {
     console.log('\nBem-vindo! Selecione uma opção:');
     console.log('Contas:');

@@ -14,14 +14,14 @@ export class ProdutoPerecivel extends Produto {
 
     public repor(qtd_produto: number): void {
         if (!this.isValid()) {
-            throw new Error("Não é possível repor, o produto está fora da validade.")
+            console.error("Não é possível repor, o produto está fora da validade.")
         }
         super.repor(qtd_produto)
     }
 
     public darBaixa(qtd_produto: number): void{
         if (!this.isValid()) {
-            throw new Error("Não é possível dar baixa, o produto está fora da validade.")
+            console.error("Não é possível dar baixa, o produto está fora da validade.")
         }
         super.darBaixa(qtd_produto)
     }

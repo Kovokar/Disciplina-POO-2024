@@ -303,7 +303,7 @@ function testeAutomatico(){
     listarContasSemCliente()
 }
 
-function perguntar() {
+export function perguntar() {
 
     
     let resposta

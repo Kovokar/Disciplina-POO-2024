@@ -2,6 +2,8 @@
 import {Carro, Veiculo, CarroEletrico} from './veiculo_1/heranca_veiculo'
 import {Calculadora} from './calculadora_2/calculadora'
 import {CalculadoraCientifica} from './calculadora_cientifica_3/CalculadoraCientifica'
+import {gerenciarEstoque} from './controleEstoque_5/app'
+import {perguntar} from './sistemaBancario_q4/app'
 
 
 function Q1(): void{
@@ -19,8 +21,16 @@ function Q3(): void{
     console.log(calcCient.exponencia())
 }
 
+function Q4(): void{
+    perguntar()
+}
 
+function Q5(): void{
+    gerenciarEstoque()
+}
 
 Q1()
-Q2()
-Q3()
+// Q2()
+// Q3()
+// Q4()
+// Q5()

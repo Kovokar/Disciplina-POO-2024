@@ -29,13 +29,13 @@ var ProdutoPerecivel = /** @class */ (function (_super) {
     };
     ProdutoPerecivel.prototype.repor = function (qtd_produto) {
         if (!this.isValid()) {
-            throw new Error("Não é possível repor, o produto está fora da validade.");
+            console.error("Não é possível repor, o produto está fora da validade.");
         }
         _super.prototype.repor.call(this, qtd_produto);
     };
     ProdutoPerecivel.prototype.darBaixa = function (qtd_produto) {
         if (!this.isValid()) {
-            throw new Error("Não é possível dar baixa, o produto está fora da validade.");
+            console.error("Não é possível dar baixa, o produto está fora da validade.");
         }
         _super.prototype.darBaixa.call(this, qtd_produto);
     };
