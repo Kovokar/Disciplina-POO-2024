@@ -3,10 +3,12 @@ exports.__esModule = true;
 var Cliente_1 = require("./Cliente/Cliente");
 var Banco_1 = require("./Banco/Banco");
 var Conta_1 = require("./Conta/Conta");
+var Poupanca_1 = require("./ContaPoupan\u00E7a/Poupanca");
 var promptSync = require("prompt-sync");
 var input = promptSync();
 var banco = new Banco_1.Banco();
-perguntar();
+// perguntar()
+testeAutomatico();
 function exibirMenuDeOpcoes() {
     var opcao;
     do {
@@ -77,8 +79,8 @@ function exibirMenuDeOpcoes() {
 function inserirConta(ie_automatico) {
     var id_conta = createIdGenerator();
     if (ie_automatico) {
-        banco.inserirConta(new Conta_1.Conta('111-1', 1000, 1));
-        banco.inserirConta(new Conta_1.Conta('222-2', 200, 2));
+        banco.inserirConta(new Poupanca_1.Poupanca('111-1', 1000, 1, 5));
+        banco.inserirConta(new Poupanca_1.Poupanca('222-2', 200, 2, 7));
         banco.inserirConta(new Conta_1.Conta('333-3', 300, 3));
         banco.inserirConta(new Conta_1.Conta('444-4', 400, 4));
         banco.inserirConta(new Conta_1.Conta('555-5', 500, 5)); //conta sem cliendte
@@ -128,7 +130,7 @@ function excluirConta(ie_automatico) {
 }
 function transferir(ie_automatico) {
     if (ie_automatico) {
-        banco.trasnferir("1", "111-1", "2", "222-2", 100);
+        banco.transferir("1", "111-1", "2", "222-2", 100);
         return;
     }
     var cpf_remetente = input("Digite o CPF vinculado a conta que irá mandar o dinheiro: ");
@@ -136,7 +138,7 @@ function transferir(ie_automatico) {
     var cpf_destino = input("Digite o CPF vinculado a conta que irá receber o dinheiro: ");
     var num_conta_destino = input("Digite o número da conta que irá receber o dinheiro: ");
     var val_transferido = isNumber(Number(input("Digite o valor que deseja transferir: ")));
-    banco.trasnferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido);
+    banco.transferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido);
 }
 function totalizacoes() {
     console.log("H\u00E1 ".concat(banco.totalDeContas(), " contas no banco"));
@@ -203,7 +205,7 @@ function listarContasSemCliente(ie_automatico) {
     var contasSemCliente = banco.listarContasSemCliente();
     console.log("\nContas sem cliente associado:");
     contasSemCliente.forEach(function (conta) {
-        console.log("N\u00FAmero da Conta: ".concat(conta.numero, ", Saldo: R$").concat(conta.saldo));
+        console.log("N\u00FAmero da Conta: ".concat(conta.getNumero(), ", Saldo: R$").concat(conta.getSaldo()));
     });
     var numeroConta = input("Digite o número da conta que deseja associar a um cliente: ");
     var cpfCliente = input("Digite o CPF do cliente: ");
@@ -213,31 +215,33 @@ function testeAutomatico() {
     console.log();
     inserirConta(true);
     console.log();
-    inserirCliente(true);
-    console.log();
-    associarContaCliente(true);
-    console.log();
-    // console.log("CONSTAS NO BANCO: ")
-    // console.log(banco.contas)
+    banco.renderJuros('111-1');
+    banco.renderJuros('333-3');
+    // consultarConta(true)
+    // inserirCliente(true)
     // console.log()
-    // console.log("CLIENTES CADASTRADOS")
-    // console.log(banco.clientes)
-    // console.log("\n\n")
-    console.log("CONSULTANDO CONTA:");
-    consultarConta(true);
-    console.log();
-    sacar(true);
-    console.log();
-    depositar(true);
-    console.log();
-    excluirConta(true);
-    console.log();
-    transferir(true);
-    console.log();
-    totalizacoes();
-    mudarTitularidadeConta(true);
-    excluirCliente(true);
-    listarContasSemCliente();
+    // associarContaCliente(true)
+    // console.log()
+    // // console.log("CONSTAS NO BANCO: ")
+    // // console.log(banco.contas)
+    // // console.log()
+    // // console.log("CLIENTES CADASTRADOS")
+    // // console.log(banco.clientes)
+    // // console.log("\n\n")
+    // console.log("CONSULTANDO CONTA:")
+    // console.log()
+    // sacar(true)
+    // console.log()
+    // depositar(true)
+    // console.log()
+    // excluirConta(true)
+    // console.log()
+    // transferir(true)
+    // console.log()
+    // totalizacoes()
+    // mudarTitularidadeConta(true)
+    // excluirCliente(true)
+    // listarContasSemCliente()
 }
 function perguntar() {
     var resposta;

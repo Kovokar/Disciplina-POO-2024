@@ -1,16 +1,16 @@
 import { Cliente } from './Cliente/Cliente'
 import { Banco } from './Banco/Banco'
 import { Conta } from './Conta/Conta'
+import { Poupanca} from './ContaPoupança/Poupanca'
 
 import * as promptSync from 'prompt-sync'
 
 const input = promptSync() 
 let banco: Banco = new Banco()
 
-perguntar()
 
-
-
+// perguntar()
+testeAutomatico()
 
 function exibirMenuDeOpcoes() {
     let opcao: string
@@ -88,8 +88,8 @@ function inserirConta(ie_automatico?: boolean): void{
     let id_conta = createIdGenerator()
 
     if (ie_automatico){
-        banco.inserirConta(new Conta('111-1', 1000, 1))
-        banco.inserirConta(new Conta('222-2', 200, 2))
+        banco.inserirConta(new Poupanca('111-1', 1000, 1, 5))
+        banco.inserirConta(new Poupanca('222-2', 200, 2, 7))
         banco.inserirConta(new Conta('333-3', 300, 3))
         banco.inserirConta(new Conta('444-4', 400, 4))
         banco.inserirConta(new Conta('555-5', 500, 5)) //conta sem cliendte
@@ -155,7 +155,7 @@ function excluirConta(ie_automatico?: boolean): void{
 
 function transferir(ie_automatico?: boolean): void{
     if (ie_automatico){
-        banco.trasnferir("1","111-1", "2", "222-2", 100)
+        banco.transferir("1","111-1", "2", "222-2", 100)
         return
     }
     const cpf_remetente = input("Digite o CPF vinculado a conta que irá mandar o dinheiro: ")
@@ -164,7 +164,7 @@ function transferir(ie_automatico?: boolean): void{
     const num_conta_destino = input("Digite o número da conta que irá receber o dinheiro: ")
     const val_transferido = isNumber(Number(input("Digite o valor que deseja transferir: ")))
 
-    banco.trasnferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido
+    banco.transferir(cpf_remetente, num_conta_remetente, cpf_destino, num_conta_destino, val_transferido
 
     )
 }
@@ -248,7 +248,7 @@ function listarContasSemCliente(ie_automatico?: boolean): void{
     const contasSemCliente = banco.listarContasSemCliente()
     console.log("\nContas sem cliente associado:")
     contasSemCliente.forEach(conta => {
-        console.log(`Número da Conta: ${conta.numero}, Saldo: R$${conta.saldo}`)
+        console.log(`Número da Conta: ${conta.getNumero()}, Saldo: R$${conta.getSaldo()}`)
     })
     const numeroConta = input("Digite o número da conta que deseja associar a um cliente: ")
     const cpfCliente = input("Digite o CPF do cliente: ")
@@ -260,31 +260,33 @@ function testeAutomatico(){
     console.log()
     inserirConta(true)
     console.log()
-    inserirCliente(true)
-    console.log()
-    associarContaCliente(true)
-    console.log()
-    // console.log("CONSTAS NO BANCO: ")
-    // console.log(banco.contas)
+    banco.renderJuros('111-1')
+    banco.renderJuros('333-3')
+    // consultarConta(true)
+    // inserirCliente(true)
     // console.log()
-    // console.log("CLIENTES CADASTRADOS")
-    // console.log(banco.clientes)
-    // console.log("\n\n")
-    console.log("CONSULTANDO CONTA:")
-    consultarConta(true)
-    console.log()
-    sacar(true)
-    console.log()
-    depositar(true)
-    console.log()
-    excluirConta(true)
-    console.log()
-    transferir(true)
-    console.log()
-    totalizacoes()
-    mudarTitularidadeConta(true)
-    excluirCliente(true)
-    listarContasSemCliente()
+    // associarContaCliente(true)
+    // console.log()
+    // // console.log("CONSTAS NO BANCO: ")
+    // // console.log(banco.contas)
+    // // console.log()
+    // // console.log("CLIENTES CADASTRADOS")
+    // // console.log(banco.clientes)
+    // // console.log("\n\n")
+    // console.log("CONSULTANDO CONTA:")
+    // console.log()
+    // sacar(true)
+    // console.log()
+    // depositar(true)
+    // console.log()
+    // excluirConta(true)
+    // console.log()
+    // transferir(true)
+    // console.log()
+    // totalizacoes()
+    // mudarTitularidadeConta(true)
+    // excluirCliente(true)
+    // listarContasSemCliente()
 }
 
 function perguntar() {
