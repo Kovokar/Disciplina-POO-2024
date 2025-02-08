@@ -2,7 +2,7 @@
 
 ## Repositório
 
-[Link para o Repositório no GitHub](https://github.com/SEU_USUARIO/sistema-bancario-typescript)
+[Projeto](https://github.com/Kovokar/Disciplina-POO-2024/tree/main/atvd_8/sistemaBancario_q4)
 
 ## Descrição
 
