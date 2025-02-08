@@ -1,6 +1,7 @@
 import { Conta } from '../Conta/Conta'
 import { Cliente } from '../Cliente/Cliente'
 import { Poupanca } from '../ContaPoupança/Poupanca'
+import { ContaInexistenteError, ClienteNaoEncontradoError, PoupancaInvalidaError } from "../AplicacaoError"
 
 export class Banco {
     private contas: Conta[] // Tornando o array de contas privado
@@ -53,18 +54,20 @@ export class Banco {
         return contaProcurada[0];
     }
 
-    consultar(numero: string): Conta | null {
-        return this.consultarPorIndice(numero);
+    consultar(numero: string): Conta {
+        const conta = this.consultarPorIndice(numero)
+        if (!conta) {
+            throw new ContaInexistenteError(numero)
+        }
+        return conta
     }
 
-    consultaPorCpf(cpf: string): Cliente | null {
-        const result = this.clientes.filter((key) => key.getCpf() === cpf);
-
-        if (!result) {
-            console.error(`Cliente com CPF ${cpf} não encontrado.`);
-            return null;
+    consultaPorCpf(cpf: string): Cliente {
+        const cliente = this.clientes.find(c => c.getCpf() === cpf)
+        if (!cliente) {
+            throw new ClienteNaoEncontradoError(cpf)
         }
-        return result[0];
+        return cliente
     }
 
     associarContaCliente(numeroConta: string, cpfCliente: string): void {
@@ -77,7 +80,6 @@ export class Banco {
             return;
         }
         cliente.adicionarConta(conta);
-        conta.setAssociada(true);
         console.log(`Conta ${numeroConta} associada com sucesso ao cliente ${cliente.getNome()}.`);
     }
 
@@ -109,55 +111,45 @@ export class Banco {
     }
 
     sacar(cpf: string, numeroConta: string, valSacado: number, ie_trans?: boolean): boolean {
-        const clientesIndex = this.retornarContaCliente(cpf, numeroConta);
-        if (!clientesIndex) return false;
-        const [cliente, contaIndex] = clientesIndex;
-
-        let saldoCliente = cliente.getContas()[contaIndex].getSaldo();
-        if (saldoCliente < valSacado) {
-            console.log("Você não tem saldo o suficiente");
-            return false;
-        }
+        const [cliente, contaIndex] = this.retornarContaCliente(cpf, numeroConta);
         cliente.getContas()[contaIndex].sacar(valSacado);
-        if (!ie_trans)
+        
+        if (!ie_trans) {
             console.log(`Valor de R$${valSacado} sacado com sucesso`);
+        }
         return true;
     }
 
     depositar(cpf: string, numeroConta: string, valDeposito: number, ie_trans?: boolean): boolean {
-        const clientesIndex = this.retornarContaCliente(cpf, numeroConta);
-        if (!clientesIndex) return false;
-
-        const [cliente, contaIndex] = clientesIndex;
+        const [cliente, contaIndex] = this.retornarContaCliente(cpf, numeroConta);
         cliente.getContas()[contaIndex].depositar(valDeposito);
         this.totDepositado(valDeposito);
-        if (!ie_trans)
+        
+        if (!ie_trans) {
             console.log("Deposito realizado com sucesso!");
+        }
         return true;
     }
 
     transferir(cpfRemetente: string, numeroContaRemetente: string, cpfDestino: string, numeroContaDestino: string, valTransferido: number): void {
-        const clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
-        const clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
+        const [clienteRemetente, contaIndexRemetente] = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
+        const [clienteDestino, contaIndexDestino] = this.retornarContaCliente(cpfDestino, numeroContaDestino);
         
-        if (!clientesIndexRemetente || !clientesIndexDestino) return;
+        const contaRemetente = clienteRemetente.getContas()[contaIndexRemetente];
+        const contaDestino = clienteDestino.getContas()[contaIndexDestino];
         
-        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido, true)) {
-            this.depositar(cpfDestino, numeroContaDestino, valTransferido, true);
-            console.log("Valor Transferido com Sucesso");
-        }
+        contaRemetente.sacar(valTransferido);
+        contaDestino.depositar(valTransferido);
+        
+        console.log("Valor Transferido com Sucesso");
     }
 
-    retornarContaCliente(cpf: string, numeroConta: string): [Cliente, number] | void {
+    retornarContaCliente(cpf: string, numeroConta: string): [Cliente, number] {
         const cliente = this.consultaPorCpf(cpf);
-        if (!cliente) {
-            console.log('Cliente não encontrado!');
-            return;
-        }
         const contaIndex = cliente.getContas().findIndex(conta => conta.getNumero() === numeroConta);
+        
         if (contaIndex === -1) {
-            console.log('Conta não encontrada!');
-            return;
+            throw new ContaInexistenteError(numeroConta);
         }
 
         return [cliente, contaIndex];
@@ -297,14 +289,12 @@ export class Banco {
     }
 
     renderJuros(num_conta: string): void {
-        try {
-            let conta = this.consultar(num_conta)
-            if (!(conta instanceof Poupanca)) {
-                throw new Error("Conta não é do tipo Poupanca")
-            }
-            conta.renderJuros()
-        } catch (error) {
-            console.log(error.message)
+        let conta = this.consultar(num_conta)
+        
+        if (!(conta instanceof Poupanca)) {
+            throw new PoupancaInvalidaError(num_conta)
         }
+        
+        conta.renderJuros()
     }
 }

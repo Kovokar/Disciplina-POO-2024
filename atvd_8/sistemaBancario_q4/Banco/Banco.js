@@ -2,6 +2,7 @@
 exports.__esModule = true;
 exports.Banco = void 0;
 var Poupanca_1 = require("../ContaPoupan\u00E7a/Poupanca");
+var AplicacaoError_1 = require("../AplicacaoError");
 var Banco = /** @class */ (function () {
     function Banco() {
         this.data = {
@@ -44,15 +45,18 @@ var Banco = /** @class */ (function () {
         return contaProcurada[0];
     };
     Banco.prototype.consultar = function (numero) {
-        return this.consultarPorIndice(numero);
+        var conta = this.consultarPorIndice(numero);
+        if (!conta) {
+            throw new AplicacaoError_1.ContaInexistenteError(numero);
+        }
+        return conta;
     };
     Banco.prototype.consultaPorCpf = function (cpf) {
-        var result = this.clientes.filter(function (key) { return key.getCpf() === cpf; });
-        if (!result) {
-            console.error("Cliente com CPF ".concat(cpf, " n\u00E3o encontrado."));
-            return null;
+        var cliente = this.clientes.find(function (c) { return c.getCpf() === cpf; });
+        if (!cliente) {
+            throw new AplicacaoError_1.ClienteNaoEncontradoError(cpf);
         }
-        return result[0];
+        return cliente;
     };
     Banco.prototype.associarContaCliente = function (numeroConta, cpfCliente) {
         var cliente = this.consultaPorCpf(cpfCliente);
@@ -64,7 +68,6 @@ var Banco = /** @class */ (function () {
             return;
         }
         cliente.adicionarConta(conta);
-        conta.setAssociada(true);
         console.log("Conta ".concat(numeroConta, " associada com sucesso ao cliente ").concat(cliente.getNome(), "."));
     };
     // private mudarStatusConta(conta: Conta): void {
@@ -91,51 +94,36 @@ var Banco = /** @class */ (function () {
         console.log("Conta ".concat(numeroConta, " removida com sucesso do cliente ").concat(cliente.getNome(), "."));
     };
     Banco.prototype.sacar = function (cpf, numeroConta, valSacado, ie_trans) {
-        var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
-        if (!clientesIndex)
-            return false;
-        var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
-        var saldoCliente = cliente.getContas()[contaIndex].getSaldo();
-        if (saldoCliente < valSacado) {
-            console.log("Você não tem saldo o suficiente");
-            return false;
-        }
+        var _a = this.retornarContaCliente(cpf, numeroConta), cliente = _a[0], contaIndex = _a[1];
         cliente.getContas()[contaIndex].sacar(valSacado);
-        if (!ie_trans)
+        if (!ie_trans) {
             console.log("Valor de R$".concat(valSacado, " sacado com sucesso"));
+        }
         return true;
     };
     Banco.prototype.depositar = function (cpf, numeroConta, valDeposito, ie_trans) {
-        var clientesIndex = this.retornarContaCliente(cpf, numeroConta);
-        if (!clientesIndex)
-            return false;
-        var cliente = clientesIndex[0], contaIndex = clientesIndex[1];
+        var _a = this.retornarContaCliente(cpf, numeroConta), cliente = _a[0], contaIndex = _a[1];
         cliente.getContas()[contaIndex].depositar(valDeposito);
         this.totDepositado(valDeposito);
-        if (!ie_trans)
+        if (!ie_trans) {
             console.log("Deposito realizado com sucesso!");
+        }
         return true;
     };
     Banco.prototype.transferir = function (cpfRemetente, numeroContaRemetente, cpfDestino, numeroContaDestino, valTransferido) {
-        var clientesIndexRemetente = this.retornarContaCliente(cpfRemetente, numeroContaRemetente);
-        var clientesIndexDestino = this.retornarContaCliente(cpfDestino, numeroContaDestino);
-        if (!clientesIndexRemetente || !clientesIndexDestino)
-            return;
-        if (this.sacar(cpfRemetente, numeroContaRemetente, valTransferido, true)) {
-            this.depositar(cpfDestino, numeroContaDestino, valTransferido, true);
-            console.log("Valor Transferido com Sucesso");
-        }
+        var _a = this.retornarContaCliente(cpfRemetente, numeroContaRemetente), clienteRemetente = _a[0], contaIndexRemetente = _a[1];
+        var _b = this.retornarContaCliente(cpfDestino, numeroContaDestino), clienteDestino = _b[0], contaIndexDestino = _b[1];
+        var contaRemetente = clienteRemetente.getContas()[contaIndexRemetente];
+        var contaDestino = clienteDestino.getContas()[contaIndexDestino];
+        contaRemetente.sacar(valTransferido);
+        contaDestino.depositar(valTransferido);
+        console.log("Valor Transferido com Sucesso");
     };
     Banco.prototype.retornarContaCliente = function (cpf, numeroConta) {
         var cliente = this.consultaPorCpf(cpf);
-        if (!cliente) {
-            console.log('Cliente não encontrado!');
-            return;
-        }
         var contaIndex = cliente.getContas().findIndex(function (conta) { return conta.getNumero() === numeroConta; });
         if (contaIndex === -1) {
-            console.log('Conta não encontrada!');
-            return;
+            throw new AplicacaoError_1.ContaInexistenteError(numeroConta);
         }
         return [cliente, contaIndex];
     };
@@ -248,16 +236,11 @@ var Banco = /** @class */ (function () {
         return this.data.saldoMedioContas;
     };
     Banco.prototype.renderJuros = function (num_conta) {
-        try {
-            var conta = this.consultar(num_conta);
-            if (!(conta instanceof Poupanca_1.Poupanca)) {
-                throw new Error("Conta não é do tipo Poupanca");
-            }
-            conta.renderJuros();
+        var conta = this.consultar(num_conta);
+        if (!(conta instanceof Poupanca_1.Poupanca)) {
+            throw new AplicacaoError_1.PoupancaInvalidaError(num_conta);
         }
-        catch (error) {
-            console.log(error.message);
-        }
+        conta.renderJuros();
     };
     return Banco;
 }());
